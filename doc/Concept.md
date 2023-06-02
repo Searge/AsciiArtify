@@ -86,6 +86,115 @@ Podman є інструментом для управління контейне�
   - Підтримується тільки на Linux
     - найкраща підтримка на Fedora
 
+<!-- markdownlint-disable MD029 -->
 ## Демонстрація
 
+Демонстрація використання `k3d` для розгортання локального Kubernetes кластеру.
+Запустимо простий веб-сервер у контейнері з "Hello World" сторінкою.
+
+1. Впевністься, що `k3d` та `kubectl` встановлені на вашій системі.
+2. Створимо кластер `k3d` з ім'ям `mycluster` та одним вузлом.
+
+   ```bash
+   k3d cluster create mycluster --agents 1
+   ```
+
+3. Перевіримо, що кластер створений.
+
+   ```bash
+   k3d cluster list # або k cluster-info
+   ```
+
+4. Створимо `hello-world.yaml` файл з наступним вмістом:
+
+   ```yaml
+   apiVersion: apps/v1
+   kind: Deployment
+   metadata:
+     name: hello-world
+   spec:
+     replicas: 1
+     selector:
+       matchLabels:
+         app: hello-world
+     template:
+       metadata:
+         labels:
+           app: hello-world
+       spec:
+         containers:
+           - name: hello-world
+             image: "paulbouwer/hello-kubernetes:1.8"
+             ports:
+               - containerPort: 8080
+   ```
+
+5. Запустимо `hello-world` деплоймент.
+
+   ```bash
+    k apply -f hello-world.yaml
+    ```
+
+6. Перевіримо, що деплоймент запущений.
+
+    ```bash
+    k get deployments # або k get deploy
+    ```
+
+7. Ви маєте побачити наступний результат:
+
+    ```bash
+    NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+    hello-world   1/1     1            1           2m
+    ```
+
+8. Перевіримо, що `hello-world` контейнер запущений.
+
+    ```bash
+    k get pods # або k get po
+    ```
+
+9. Ви маєте побачити наступний результат:
+
+    ```bash
+    NAME                           READY   STATUS    RESTARTS   AGE
+    hello-world-7c9d6b7b4f-2q9qg   1/1     Running   0          2m
+    ```
+
+10. Перевіримо, що `hello-world` контейнер доступний.
+
+    ```bash
+    k get services # або k get svc
+    ```
+
+11. Ви маєте побачити наступний результат:
+
+    ```bash
+    NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+    kubernetes   ClusterIP   10.43.0.1    <none>        443/TCP   3m51s
+    ```
+
+12. Запустимо `hello-world` контейнер.
+
+    ```bash
+    k port-forward deployment/hello-world 8080:8080
+    ```
+
+13. Відкрийте `http://localhost:8080` у вашому браузері.
+14. Ви маєте побачити наступний результат:
+
+    ![Hello World](./assets/hello-world.png)
+
+15. Зупинимо `hello-world` контейнер.
+
+    ```bash
+    k delete -f hello-world.yaml
+    ```
+
+16. Зупинимо `k3d` кластер.
+
+    ```bash
+    k3d cluster delete mycluster
+    ```
+<!-- markdownlint-enable MD029 -->
 ## Висновки
