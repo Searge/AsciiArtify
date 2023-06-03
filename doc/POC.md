@@ -22,7 +22,7 @@
 2. Зачекаємо на завершення розгортання ArgoCD:
 
    ```bash
-   k wait --for=condition=available --timeout=00s \
+   k wait --for=condition=available --timeout=300s \
      deployment/argocd-server -n argocd
    ```
 
